@@ -3,28 +3,36 @@
 // Store elements in the array at the index specified by their magic integer
 // Do something interesting if two elements get the same index (hash conflict) (robinhood hashmap)
 
-pub struct HashMap {}
-
-impl HashMap {}
+static ALPHABET: [char; 26] = [
+    'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
+    't', 'u', 'v', 'w', 'x', 'y', 'z',
+];
 
 type Link<T> = Option<Box<Node<T>>>;
 
-pub struct List<T> {
+pub struct HashMap<T> {
     head: Link<T>,
+    size: i32,
 }
 
-impl<T> List<T> {
+impl<T> HashMap<T> {
     pub fn new() -> Self {
-        List { head: None }
+        HashMap {
+            head: None,
+            size: 0,
+        }
     }
 
+    //only for String
     pub fn push(&mut self, data: T) {
+        let hash_key = self.get_hash_key(data);
         let new_node = Box::new(Node {
             data: data,
             next: self.head.take(),
         });
 
         self.head = Some(new_node);
+        self.size += 1;
     }
 
     pub fn pop(&mut self) -> Option<T> {
@@ -33,9 +41,22 @@ impl<T> List<T> {
             node.data
         })
     }
+    fn get_hash_key(&self, data: T) -> i32 {
+        let mut key = 0;
+        for c in data.chars() {
+            for i in 0..ALPHABET.len() {
+                if c == ALPHABET[i] {
+                    key += i as i32;
+                }
+            }
+        }
+        key % self.size
+    }
 }
 
-impl<T> Drop for List<T> {
+impl HashMap<T> {}
+
+impl<T> Drop for HashMap<T> {
     fn drop(&mut self) {
         let mut cur_link = self.head.take();
         while let Some(mut boxed_node) = cur_link {
@@ -45,6 +66,7 @@ impl<T> Drop for List<T> {
 }
 
 pub struct Node<T> {
+    key: i32,
     data: T,
     next: Link<T>,
 }
@@ -53,10 +75,10 @@ fn main() {}
 
 #[cfg(test)]
 mod test {
-    use super::List;
+    use super::HashMap;
     #[test]
     fn basics() {
-        let mut list = List::new();
+        let mut list = HashMap::new();
 
         // Check empty list behaves right
         assert_eq!(list.pop(), None);
