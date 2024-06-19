@@ -47,7 +47,6 @@ impl<T> Drop for List<T> {
 pub struct Node<T> {
     data: T,
     next: Link<T>,
-    prev: Link<T>,
 }
 
 fn main() {}
