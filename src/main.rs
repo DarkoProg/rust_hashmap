@@ -24,16 +24,6 @@ impl<T> HashMap<T> {
     }
 
     //only for String
-    pub fn push(&mut self, data: T) {
-        let hash_key = self.get_hash_key(data);
-        let new_node = Box::new(Node {
-            data: data,
-            next: self.head.take(),
-        });
-
-        self.head = Some(new_node);
-        self.size += 1;
-    }
 
     pub fn pop(&mut self) -> Option<T> {
         self.head.take().map(|node| {
@@ -41,7 +31,21 @@ impl<T> HashMap<T> {
             node.data
         })
     }
-    fn get_hash_key(&self, data: T) -> i32 {
+}
+
+impl HashMap<`a + &str> {
+    pub fn push(&mut self, value: &`a &str) {
+        let new_node = Box::new(Node {
+            data: value,
+            key: 0,
+            next: self.head.take(),
+        });
+        let hash_key = self.get_hash_key(value.clone());
+
+        self.head = Some(new_node);
+        self.size += 1;
+    }
+    fn get_hash_key(&self, data: &str) -> i32 {
         let mut key = 0;
         for c in data.chars() {
             for i in 0..ALPHABET.len() {
@@ -53,8 +57,6 @@ impl<T> HashMap<T> {
         key % self.size
     }
 }
-
-impl HashMap<T> {}
 
 impl<T> Drop for HashMap<T> {
     fn drop(&mut self) {
